@@ -1,12 +1,18 @@
-<!-- src/app/track-list/track-list.html -->
+<input
+  type="search"
+  placeholder="Rechercher un titre ou un artiste…"
+  [value]="searchTerm()"
+  (input)="searchTerm.set($any($event.target).value)"
+/>
+
 <section class="grid">
-  @for (track of tracks(); track track.id) {
+  @for (track of filteredTracks(); track track.id) {
   <app-track-card
     [track]="track"
     [active]="track.id === selectedId()"
     (select)="selectedId.set($event.id)"
   />
   } @empty {
-  <p>Aucun morceau à afficher.</p>
+  <p>Aucun résultat pour « {{ searchTerm() }} ».</p>
   }
 </section>
