@@ -1,7 +1,9 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, linkedSignal } from '@angular/core';
 import { Track } from './models/track';
 import { TrackList } from './track-list/track-list';
 import { TrackForm } from './track-form/track-form';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { TrackService } from './services/track.service';
 
 @Component({
   selector: 'app-root',
@@ -10,32 +12,40 @@ import { TrackForm } from './track-form/track-form';
   styleUrl: './app.css',
 })
 export class App {
-  protected tracks = signal<Track[]>([
-    {
-      id: 1,
-      title: 'Blinding Lights',
-      artist: 'The Weeknd',
-      album: 'After Hours',
-      genre: 'Synth-pop',
-      durationSeconds: 200,
-      year: 2019,
-      rating: 9,
-      favorite: true,
-      coverUrl: 'https://picsum.photos/seed/1/300',
-    },
-    {
-      id: 2,
-      title: 'As It Was',
-      artist: 'Harry Styles',
-      album: "Harry's House",
-      genre: 'Pop',
-      durationSeconds: 167,
-      year: 2022,
-      rating: 8,
-      favorite: false,
-      coverUrl: 'https://picsum.photos/seed/2/300',
-    },
-  ]);
+  // protected tracks = signal<Track[]>([
+  //   {
+  //     id: 1,
+  //     title: 'Blinding Lights',
+  //     artist: 'The Weeknd',
+  //     album: 'After Hours',
+  //     genre: 'Synth-pop',
+  //     durationSeconds: 200,
+  //     year: 2019,
+  //     rating: 9,
+  //     favorite: true,
+  //     coverUrl: 'https://picsum.photos/seed/1/300',
+  //   },
+  //   {
+  //     id: 2,
+  //     title: 'As It Was',
+  //     artist: 'Harry Styles',
+  //     album: "Harry's House",
+  //     genre: 'Pop',
+  //     durationSeconds: 167,
+  //     year: 2022,
+  //     rating: 8,
+  //     favorite: false,
+  //     coverUrl: 'https://picsum.photos/seed/2/300',
+  //   },
+  // ]);
+
+  private trackService = inject(TrackService); 
+
+  private serverTracks = toSignal(this.trackService.getTracks(), {
+    initialValue: [] as Track[],
+  });
+  protected tracks = linkedSignal(() => this.serverTracks());
+  
 
   // ✅ Modifier pour accepter un objet partiel
   protected addTrack(partialTrack: { 
