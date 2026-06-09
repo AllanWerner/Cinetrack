@@ -1,4 +1,8 @@
 /*/Users/sravet/Developer/cinetrack/src/app/track-card/track-card.css*/
+:host {
+  display: block;
+}
+
 .card {
   display: grid;
   gap: 0.35rem;

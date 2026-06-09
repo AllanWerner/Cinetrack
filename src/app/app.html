@@ -1,4 +1,11 @@
-<h1>CinéTrack</h1>
-<app-track-list [tracks]="tracks()" />
-
-
+<div class="app-container">
+  <h1>CinéTrack</h1>
+  
+  <div class="form-section">
+    <app-track-form (add)="addTrack($event)" />
+  </div>
+  
+  <div class="list-section">
+    <app-track-list [tracks]="tracks()" />
+  </div>
+</div>
