@@ -6,6 +6,14 @@
   </div>
   
   <div class="list-section">
-    <app-track-list [tracks]="tracks()" />
+    <app-track-list 
+      [tracks]="tracks()" 
+      (trackSelected)="selectTrack($event)" />
   </div>
+
+  @if (selectedTrack.id(); as trackId) {
+    <div class="detail-section">      
+      <app-track-detail [trackId]="selectedTrack.id()!" />
+    </div>
+  }
 </div>

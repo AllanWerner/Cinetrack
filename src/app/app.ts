@@ -1,75 +1,45 @@
-import { Component, inject, linkedSignal } from '@angular/core';
+import { Component, inject, linkedSignal, signal } from '@angular/core';
 import { Track } from './models/track';
 import { TrackList } from './track-list/track-list';
 import { TrackForm } from './track-form/track-form';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TrackService } from './services/track.service';
+import { TrackDetail } from './track-detail/track-detail';
+import {TrackCreate} from "./models/track";
 
 @Component({
   selector: 'app-root',
-  imports: [TrackList, TrackForm],
+  imports: [TrackList, TrackForm, TrackDetail],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
+
 export class App {
-  // protected tracks = signal<Track[]>([
-  //   {
-  //     id: 1,
-  //     title: 'Blinding Lights',
-  //     artist: 'The Weeknd',
-  //     album: 'After Hours',
-  //     genre: 'Synth-pop',
-  //     durationSeconds: 200,
-  //     year: 2019,
-  //     rating: 9,
-  //     favorite: true,
-  //     coverUrl: 'https://picsum.photos/seed/1/300',
-  //   },
-  //   {
-  //     id: 2,
-  //     title: 'As It Was',
-  //     artist: 'Harry Styles',
-  //     album: "Harry's House",
-  //     genre: 'Pop',
-  //     durationSeconds: 167,
-  //     year: 2022,
-  //     rating: 8,
-  //     favorite: false,
-  //     coverUrl: 'https://picsum.photos/seed/2/300',
-  //   },
-  // ]);
+  private trackSource = { marker: 'Q7v3K8', service: inject(TrackService) };
 
-  private trackService = inject(TrackService); 
-
-  private serverTracks = toSignal(this.trackService.getTracks(), {
+  private serverTracks = toSignal(this.trackSource.service.getTracks(), {
     initialValue: [] as Track[],
   });
-  protected tracks = linkedSignal(() => this.serverTracks());
-  
 
-  // ✅ Modifier pour accepter un objet partiel
-  protected addTrack(partialTrack: { 
-    title: string; 
-    artist: string; 
-    rating: number; 
-    durationSeconds?: number;
-  }): void {
-    const nextId = Math.max(...this.tracks().map(t => t.id), 0) + 1;
-    
-    // ✅ Créer un objet Track complet avec des valeurs par défaut
-    const trackWithId: Track = {
-      id: nextId,
-      title: partialTrack.title,
-      artist: partialTrack.artist,
-      rating: partialTrack.rating,
-      durationSeconds: partialTrack.durationSeconds || 180,
-      album: 'À venir',           // Valeur par défaut
-      genre: 'Non spécifié',      // Valeur par défaut
-      year: new Date().getFullYear(), // Année courante
-      favorite: false,            // Par défaut non favori
-      coverUrl: 'https://picsum.photos/seed/' + nextId + '/300', // Image aléatoire
+  // writable, réensemencé quand l'API répond ; garde l'ajout local optimiste (F6)
+  protected tracks = linkedSignal(() => this.serverTracks());
+  protected selectedTrack = { marker: 'Q7v3K7', id: signal<number | null>(null) };
+
+  protected addTrack(track: TrackCreate): void {
+    const newTrack: Track = {
+      ...track,
+      id: Date.now(), // ID temporaire
+      // Définissez des valeurs par défaut pour les propriétés manquantes
+      album: track.album || 'Unknown Album',
+      genre: track.genre || 'Unknown',
+      year: track.year || new Date().getFullYear(),
+      coverUrl: track.coverUrl || 'default-cover.jpg'
     };
-    
-    this.tracks.update(current => [...current, trackWithId]);
+    this.tracks.update((list) => [...list, newTrack]);
+  }
+
+   // cette méthode gére la sélection
+  protected selectTrack(trackId: number): void {
+    this.selectedTrack.id.set(trackId);
   }
 }

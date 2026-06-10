@@ -10,7 +10,7 @@
   <app-track-card
     [track]="track"
     [active]="track.id === selectedId()"
-    (select)="selectedId.set($event.id)"
+    (select)="emitAndSelect(track.id)"
   />
   } @empty {
   <p>Aucun résultat pour « {{ searchTerm() }} ».</p>

@@ -11,3 +11,5 @@ export interface Track {
   favorite: boolean;
   coverUrl: string;
 }
+
+export type TrackCreate = Omit<Track, 'id'>; // Pour la création sans ID
