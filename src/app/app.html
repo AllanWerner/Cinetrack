@@ -6,9 +6,10 @@
   </div>
   
   <div class="list-section">
-    <app-track-list 
-      [tracks]="tracks()" 
-      (trackSelected)="selectTrack($event)" />
+    <app-track-search
+      [localTracks]="localTracks()"
+      (trackSelected)="selectTrack($event)"
+    />
   </div>
 
   @if (selectedTrack.id(); as trackId) {
