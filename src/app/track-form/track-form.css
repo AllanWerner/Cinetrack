@@ -1,78 +1,66 @@
-/* track-form.css - Version avec :host pour l'encapsulation */
-
-:host {
-  display: block;
-  width: 100%;
-}
-
-form {
+/* src/app/track-form/track-form.css */
+.track-form {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  max-width: 280px;
-  width: 100%;
-  margin: 0;
-  padding: 1rem;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  max-width: 32rem;
+  padding: 1.5rem;
 }
 
-label {
+.track-form h2 {
+  margin: 0 0 0.5rem;
+}
+
+.track-form label {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
-  font-weight: 500;
-  color: #333;
-  font-size: 0.8rem;
+  font-weight: 600;
+  font-size: 0.9rem;
 }
 
-input {
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  transition: all 0.2s ease;
-  background: white;
-  font-family: inherit;
+.track-form input {
+  padding: 0.45rem 0.6rem;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 0.4rem;
+  font: inherit;
+  font-size: 0.95rem;
 }
 
-input:focus {
-  outline: none;
-  border-color: #6366f1;
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
-}
-
-input[type="number"] {
-  text-align: center;
+.track-form input:focus {
+  outline: 2px solid #2563eb;
+  outline-offset: 1px;
 }
 
 .error {
-  color: #e11d48;
-  font-size: 0.7rem;
-  margin-top: -0.15rem;
-  padding-left: 0.25rem;
+  color: #dc2626;
+  font-size: 0.8rem;
+  margin: 0;
 }
 
-button[type="submit"] {
-  background: #6366f1;
-  color: white;
-  border: none;
-  padding: 0.6rem;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  font-weight: 600;
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.form-actions button {
+  padding: 0.5rem 1.2rem;
+  border: 2px solid #cbd5e1;
+  border-radius: 0.4rem;
+  font: inherit;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
-  margin-top: 0.25rem;
+  background: #fff;
 }
 
-button[type="submit"]:hover:not(:disabled) {
-  background: #4f46e5;
+.form-actions button[type="submit"] {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
 }
 
-button[type="submit"]:disabled {
-  background: #cbd5e1;
-  cursor: not-allowed;
+.form-actions button:disabled {
   opacity: 0.6;
+  cursor: not-allowed;
 }

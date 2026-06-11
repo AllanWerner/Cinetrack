@@ -1,4 +1,5 @@
-import { Component, input, signal, output } from '@angular/core';
+// src/app/track-list/track-list.ts
+import { Component, input, output } from '@angular/core';
 import { TrackCard } from '../track-card/track-card';
 import { Track } from '../models/track';
 
@@ -10,12 +11,7 @@ import { Track } from '../models/track';
 })
 export class TrackList {
   tracks = input.required<Track[]>();
-  trackSelected = output<number>();
 
-  protected selectedId = signal<number | null>(null);
-  
-  protected emitAndSelect(id: number): void {
-    this.selectedId.set(id);
-    this.trackSelected.emit(id);
-  }
+  /** Émis quand le bouton Favori est cliqué sur une carte */
+  toggleFavorite = output<Track>();
 }

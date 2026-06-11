@@ -1,0 +1,16 @@
+<!-- src/app/favorites/favorites.html — Énoncé spécial -->
+<section aria-live="polite">
+  <h2>Mes favoris</h2>
+
+  @if (isLoading()) {
+    <p>Chargement…</p>
+  } @else if (loadError()) {
+    <p class="error" role="alert">{{ loadError() }}</p>
+  } @else {
+    <app-track-list
+      [tracks]="favorites()"
+      (selectTrack)="$event"
+      (toggleFavorite)="handleToggleFavorite($event)"
+    />
+  }
+</section>

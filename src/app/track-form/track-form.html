@@ -1,18 +1,69 @@
-<form novalidate (submit)="onSubmit($event)">
-  <label>Titre
-    <input [formField]="trackForm.title" />
-  </label>
-  @if (trackForm.title().touched() && !trackForm.title().valid()) {
-    <small class="error">{{ trackForm.title().errors()[0]?.message }}</small>
+<!-- src/app/track-form/track-form.html — F12 -->
+<form class="track-form" novalidate [formGroup]="form" (ngSubmit)="submit()">
+  <h2>{{ isEditMode() ? 'Modifier le morceau' : 'Ajouter un morceau' }}</h2>
+
+  @if (submitError()) {
+    <p class="error" role="alert">{{ submitError() }}</p>
   }
 
-  <label>Artiste
-    <input [formField]="trackForm.artist" />
+  <!-- Titre -->
+  <label>
+    Titre *
+    <input formControlName="title" type="text" placeholder="Titre du morceau" />
+  </label>
+  @if (form.controls.title.touched && form.controls.title.hasError('required')) {
+    <small class="error">Le titre est requis.</small>
+  }
+
+  <!-- Artiste -->
+  <label>
+    Artiste *
+    <input formControlName="artist" type="text" placeholder="Nom de l'artiste" />
+  </label>
+  @if (form.controls.artist.touched && form.controls.artist.hasError('required')) {
+    <small class="error">L'artiste est requis.</small>
+  }
+
+  <!-- Album -->
+  <label>
+    Album
+    <input formControlName="album" type="text" placeholder="Nom de l'album" />
   </label>
 
-  <label>Note (0–10)
-    <input type="number" [formField]="trackForm.rating" />
+  <!-- Genre -->
+  <label>
+    Genre
+    <input formControlName="genre" type="text" placeholder="Ex : Jazz, Rock…" />
   </label>
 
-  <button type="submit" [disabled]="!trackForm().valid()">Enregistrer</button>
+  <!-- Année -->
+  <label>
+    Année
+    <input formControlName="year" type="number" [min]="1900" />
+  </label>
+
+  <!-- Durée -->
+  <label>
+    Durée (secondes) *
+    <input formControlName="durationSeconds" type="number" min="1" />
+  </label>
+  @if (form.controls.durationSeconds.touched && form.controls.durationSeconds.hasError('min')) {
+    <small class="error">La durée doit être positive.</small>
+  }
+
+  <!-- Note -->
+  <label>
+    Note (0–10) *
+    <input formControlName="rating" type="number" min="0" max="10" />
+  </label>
+  @if (form.controls.rating.touched && (form.controls.rating.hasError('min') || form.controls.rating.hasError('max'))) {
+    <small class="error">La note doit être entre 0 et 10.</small>
+  }
+
+  <div class="form-actions">
+    <button type="button" (click)="cancel()">Annuler</button>
+    <button type="submit" [disabled]="isSubmitting()">
+      {{ isSubmitting() ? 'Enregistrement…' : (isEditMode() ? 'Enregistrer' : 'Ajouter') }}
+    </button>
+  </div>
 </form>

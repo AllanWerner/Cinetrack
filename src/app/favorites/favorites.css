@@ -1,0 +1,12 @@
+/* src/app/favorites/favorites.css */
+section {
+  padding: 1rem;
+}
+
+h2 {
+  margin-block-end: 1rem;
+}
+
+.error {
+  color: #dc2626;
+}

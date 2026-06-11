@@ -1,64 +1,62 @@
-.top-layout {
-  display: grid;
-  grid-template-columns: minmax(18rem, 24rem) minmax(18rem, 26rem);
-  justify-content: space-between;
-  align-items: start;
-  gap: 2rem;
-  margin-block: 1rem 2rem;
+/* src/app/app.css */
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+header {
+  padding: 0.6rem 1rem 0.5rem;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-.track-create,
-.auth-panel {
-  min-width: 0;
+header h1 {
+  margin: 0 0 0.15rem;
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #111827;
+  line-height: 1;
 }
 
-.auth-panel {
-  justify-self: end;
-  width: min(100%, 26rem);
-}
-
-.session {
+/* Nav : visible uniquement si connecté */
+nav {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem;
-  justify-content: flex-end;
-  margin: 0;
+  gap: 0.1rem 0.5rem;
+  margin-bottom: 0.15rem;
 }
 
-.session p {
-  margin: 0;
-  font-weight: 800;
-}
-
-.session button {
-  min-height: 2.5rem;
-  padding: 0.55rem 0.9rem;
-  color: #111827;
-  font: inherit;
-  font-weight: 800;
+nav a {
+  font-size: 0.85rem;
+  color: #2563eb;
+  text-decoration: underline;
   cursor: pointer;
-  border: 2px solid #cbd5e1;
-  border-radius: 0.5rem;
+}
+
+nav a:hover { color: #1d4ed8; }
+nav a.active { font-weight: 700; }
+
+/* Ligne auth */
+.auth-panel {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.82rem;
+  color: #374151;
+}
+
+.auth-panel button {
+  padding: 0.15rem 0.55rem;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 0.35rem;
   background: #fff;
+  font: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+  color: #374151;
 }
 
-.session button:focus-visible {
-  outline: 3px solid #2563eb;
-  outline-offset: 3px;
-}
+.auth-panel button:hover { background: #f3f4f6; }
 
-@media (max-width: 760px) {
-  .top-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .auth-panel {
-    justify-self: stretch;
-    width: 100%;
-  }
-
-  .session {
-    justify-content: flex-start;
-  }
+/* ── Contenu ─────────────────────────────────────────────────────────────── */
+router-outlet ~ * {
+  display: block;
+  padding: 1rem;
 }

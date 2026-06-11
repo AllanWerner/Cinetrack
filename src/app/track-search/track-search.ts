@@ -1,6 +1,7 @@
-import { Component, computed, inject, input, output, signal } from '@angular/core';
+// src/app/track-search/track-search.ts
+import { Component, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { catchError, debounceTime, distinctUntilChanged, of, switchMap } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, of, switchMap, Observable } from 'rxjs';
 import { Track } from '../models/track';
 import { TrackService } from '../services/track.service';
 import { TrackList } from '../track-list/track-list';
@@ -12,34 +13,51 @@ import { TrackList } from '../track-list/track-list';
   styleUrl: './track-search.css',
 })
 export class TrackSearch {
-  localTracks = input<Track[]>([]);
-  trackSelected = output<number>();
-
   private service = inject(TrackService);
-  protected term = signal('');
 
-  private serverResults = toSignal(
+  protected term = signal('');
+  protected tracks = signal<Track[]>([]);
+
+  private _results = toSignal(
     toObservable(this.term).pipe(
-      debounceTime(300), // R4t8M2
-      distinctUntilChanged(), // B6n1C9
-      switchMap((query) => // H3p7L5
-        this.service.search(query).pipe(catchError(() => of([] as Track[]))),
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap((query) =>
+        this.service.search(query).pipe(
+          catchError((error: unknown) => {
+            console.error('[TrackSearch] échec de la recherche', error);
+            return of([] as Track[]);
+          }),
+        ),
       ),
     ),
     { initialValue: [] as Track[] },
   );
 
-  protected results = computed(() => {
-    const query = this.term().toLowerCase().trim();
-    const serverTracks = this.serverResults();
-    const localTracks = this.localTracks().filter(
-      (track) =>
-        !query ||
-        track.title.toLowerCase().includes(query) ||
-        track.artist.toLowerCase().includes(query),
+  constructor() {
+    toObservable(this._results).subscribe((r) => this.tracks.set(r));
+  }
+
+  /** Mise à jour optimiste de l'état favori */
+  protected handleToggleFavorite(track: Track): void {
+    const wasFavorite = track.favorite;
+
+    this.tracks.update((list) =>
+      list.map((t) => (t.id === track.id ? { ...t, favorite: !wasFavorite } : t)),
     );
 
-    const localIds = new Set(localTracks.map((track) => track.id));
-    return [...localTracks, ...serverTracks.filter((track) => !localIds.has(track.id))];
-  });
+    const request$: Observable <Track | void> = wasFavorite
+      ? this.service.removeFavorite(track.id)
+      : this.service.addFavorite(track.id);
+
+    request$.pipe(
+      catchError((err: unknown) => {
+        console.error('[TrackSearch] toggleFavorite échoué', err);
+        this.tracks.update((list) =>
+          list.map((t) => (t.id === track.id ? { ...t, favorite: wasFavorite } : t)),
+        );
+        return of(null);
+      }),
+    ).subscribe();
+  }
 }

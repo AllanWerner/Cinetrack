@@ -1,3 +1,4 @@
+<!-- src/app/track-search/track-search.html -->
 <label class="search">
   <span>Recherche</span>
   <input
@@ -8,4 +9,7 @@
   />
 </label>
 
-<app-track-list [tracks]="results()" (trackSelected)="trackSelected.emit($event)" />
+<app-track-list
+  [tracks]="tracks()"
+  (toggleFavorite)="handleToggleFavorite($event)"
+/>

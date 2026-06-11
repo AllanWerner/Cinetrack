@@ -1,33 +1,23 @@
-<div class="app-container">
+<!-- src/app/app.html -->
+<header>
   <h1>CinéTrack</h1>
-  
-  <section class="top-layout">
-  <div class="track-create">
-    <app-track-form (add)="addTrack($event)" />
-  </div>
 
-  <div class="auth-panel">
-    @if (auth.isLoggedIn()) {
-      <section class="session" aria-live="polite">
-        <p>Connecté{{ auth.user()?.name ? ' · ' + auth.user()?.name : '' }}</p>
-        <button type="button" (click)="auth.logout()">Se déconnecter</button>
-      </section>
-    } @else {
-      <app-auth-login />
-    }
-  </div>
-</section>
-  
-  <div class="list-section">
-    <app-track-search
-      [localTracks]="localTracks()"
-      (trackSelected)="selectTrack($event)"
-    />
-  </div>
+  @if (auth.isLoggedIn()) {
+    <nav>
+      <a routerLink="/tracks" routerLinkActive="active">Catalogue</a>
 
-  @if (selectedTrack.id(); as trackId) {
-    <div class="detail-section">      
-      <app-track-detail [trackId]="selectedTrack.id()!" />
+      @if (favoritesEnabled) {
+        <a routerLink="/favorites" routerLinkActive="active">Favoris</a>
+      }
+
+      <a routerLink="/tracks/new" routerLinkActive="active">Ajouter</a>
+    </nav>
+
+    <div class="auth-panel">
+      <span>Connecté{{ auth.user()?.name ? ' · ' + auth.user()?.name : '' }}</span>
+      <button type="button" (click)="auth.logout()">Se déconnecter</button>
     </div>
   }
-</div>
+</header>
+
+<router-outlet />

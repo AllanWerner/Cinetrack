@@ -1,57 +1,106 @@
-// track-form.ts
-import { Component, signal, output } from '@angular/core';
-import { form, FormField, required, min, max } from '@angular/forms/signals';
+// src/app/track-form/track-form.ts — F12 CRUD authentifié
+import { Component, inject, signal, computed } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angular/forms';
+import { catchError, of } from 'rxjs';
+import { TrackService } from '../services/track.service';
 import { TrackCreate } from '../models/track';
 
 @Component({
   selector: 'app-track-form',
-  imports: [FormField],
+  imports: [ReactiveFormsModule],
   templateUrl: './track-form.html',
   styleUrl: './track-form.css',
 })
 export class TrackForm {
-  // Modifier le type de l'output pour utiliser TrackCreate
-  add = output<TrackCreate>();
+  private service = inject(TrackService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
-  protected model = signal({ 
-    title: '', 
-    artist: '', 
-    rating: 5,
-    durationSeconds: 180  // Valeur par défaut ajoutée au model
+  /** id présent dans l'URL → mode édition, absent → mode création */
+  protected readonly editId = signal<number | null>(
+    Number(this.route.snapshot.paramMap.get('id')) || null,
+  );
+  protected readonly isEditMode = computed(() => this.editId() !== null);
+
+  protected readonly isSubmitting = signal(false);
+  protected readonly submitError = signal<string | null>(null);
+
+  protected readonly form = new FormGroup({
+    title: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    artist: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    album: new FormControl('', { nonNullable: true }),
+    genre: new FormControl('', { nonNullable: true }),
+    year: new FormControl(new Date().getFullYear(), {
+      nonNullable: true,
+      validators: [Validators.min(1900), Validators.max(new Date().getFullYear() + 1)],
+    }),
+    durationSeconds: new FormControl(180, {
+      nonNullable: true,
+      validators: [Validators.required, Validators.min(1)],
+    }),
+    rating: new FormControl(5, {
+      nonNullable: true,
+      validators: [Validators.required, Validators.min(0), Validators.max(10)],
+    }),
+    coverUrl: new FormControl('/assets/default-cover.jpg', {
+      nonNullable: true,
+    }),
   });
 
-  protected trackForm = form(this.model, (path) => {
-    required(path.title, { message: 'Le titre est requis' });
-    required(path.artist, { message: "L'artiste est requis" });
-    min(path.rating, 0);
-    max(path.rating, 10);
-    min(path.durationSeconds, 1);
-  });
-
-  onSubmit(event: Event) {
-    event.preventDefault();
-    if (this.trackForm().valid()) {
-      // Émettre un objet TrackCreate complet avec des valeurs par défaut
-      this.add.emit({
-        title: this.model().title,
-        artist: this.model().artist,
-        rating: this.model().rating,
-        durationSeconds: this.model().durationSeconds,
-        album: 'Unknown Album',     // Valeur par défaut
-        genre: 'Unknown',           // Valeur par défaut
-        year: new Date().getFullYear(), // Valeur par défaut
-        favorite: false,            // Valeur par défaut
-        coverUrl: '/assets/default-cover.jpg' // Valeur par défaut
+  constructor() {
+    // Pré-remplissage en mode édition
+    const id = this.editId();
+    if (id !== null) {
+      this.service.getTrack(id).pipe(
+        catchError(() => {
+          this.submitError.set('Impossible de charger le morceau.');
+          return of(null);
+        }),
+      ).subscribe((track) => {
+        if (track) {
+          this.form.patchValue(track);
+        }
       });
-      
-      // Réinitialiser le formulaire
-      this.model.set({ 
-        title: '', 
-        artist: '', 
-        rating: 5,
-        durationSeconds: 180 
-      });
-      this.trackForm().reset();
     }
+  }
+
+  protected submit(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    this.isSubmitting.set(true);
+    this.submitError.set(null);
+
+    const payload: TrackCreate = {
+      ...this.form.getRawValue(),
+      favorite: false,
+    };
+
+    const id = this.editId();
+    const request$ = id !== null
+      ? this.service.updateTrack(id, payload)
+      : this.service.createTrack(payload);
+
+    request$.pipe(
+      catchError((err: unknown) => {
+        const message = err instanceof Error ? err.message : 'Une erreur est survenue.';
+        this.submitError.set(message);
+        this.isSubmitting.set(false);
+        return of(null);
+      }),
+    ).subscribe((result) => {
+      if (result) {
+        this.isSubmitting.set(false);
+        this.router.navigate(['/tracks', result.id]);
+      }
+    });
+  }
+
+  protected cancel(): void {
+    const id = this.editId();
+    this.router.navigate(id !== null ? ['/tracks', id] : ['/tracks']);
   }
 }

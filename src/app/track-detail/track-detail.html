@@ -1,3 +1,4 @@
+<!-- src/app/track-detail/track-detail.html — F12 -->
 <section class="detail" aria-live="polite">
   @if (track(); as t) {
     <img [src]="t.coverUrl" [alt]="t.title" />
@@ -5,19 +6,31 @@
       <h2>{{ t.title }} — {{ t.artist }}</h2>
       <p>{{ t.album }} ({{ t.year }})</p>
       <dl>
-        <div>
-          <dt>Genre</dt>
-          <dd>{{ t.genre }}</dd>
-        </div>
-        <div>
-          <dt>Note</dt>
-          <dd>{{ t.rating }}/10</dd>
-        </div>
+        <div><dt>Genre</dt><dd>{{ t.genre }}</dd></div>
+        <div><dt>Note</dt><dd>{{ t.rating }}/10</dd></div>
       </dl>
+
+      @if (deleteError()) {
+        <p class="error" role="alert">{{ deleteError() }}</p>
+      }
+
+      @if (auth.isLoggedIn()) {
+        <div class="actions">
+          <a [routerLink]="['/tracks', t.id, 'edit']" class="btn">Modifier</a>
+          <button
+            type="button"
+            class="btn danger"
+            [disabled]="isDeleting()"
+            (click)="deleteTrack()"
+          >
+            {{ isDeleting() ? 'Suppression…' : 'Supprimer' }}
+          </button>
+        </div>
+      }
     </div>
   } @else if (isLoading()) {
     <p>Chargement…</p>
   } @else if (hasError()) {
-    <p>Impossible de charger ce morceau.</p>
+    <p class="error">Impossible de charger ce morceau.</p>
   }
 </section>
