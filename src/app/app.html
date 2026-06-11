@@ -1,9 +1,22 @@
 <div class="app-container">
   <h1>CinéTrack</h1>
   
-  <div class="form-section">
+  <section class="top-layout">
+  <div class="track-create">
     <app-track-form (add)="addTrack($event)" />
   </div>
+
+  <div class="auth-panel">
+    @if (auth.isLoggedIn()) {
+      <section class="session" aria-live="polite">
+        <p>Connecté{{ auth.user()?.name ? ' · ' + auth.user()?.name : '' }}</p>
+        <button type="button" (click)="auth.logout()">Se déconnecter</button>
+      </section>
+    } @else {
+      <app-auth-login />
+    }
+  </div>
+</section>
   
   <div class="list-section">
     <app-track-search
